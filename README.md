@@ -28,3 +28,8 @@ $ search
 8
 1 9 9 2 0 2 0 7
 ```
+
+## verify
+``` bash
+$ md5sum -c md5sum-0417.txt
+```
