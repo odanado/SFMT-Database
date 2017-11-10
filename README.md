@@ -23,7 +23,7 @@ step > 417
 
 ## search
 ```bash
-$ search
+$ ./search
 417
 8
 1 9 9 2 0 2 0 7
