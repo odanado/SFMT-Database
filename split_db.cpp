@@ -50,16 +50,15 @@ void split(int step, int stage) {
             auto file = fs::path(toHex(i, 0) + ".bin");
             auto fname =
                 (newDir / fs::path(toHex(i, 0) + old + ".bin")).string();
-            ofs[i].open(fname,
-                        ofstream::out | ofstream::binary);
+            ofs[i].open(fname, ofstream::out | ofstream::binary);
         }
         uint64_t count = 0;
 
-        do {
+        while (1) {
+            if (ifs.eof()) break;
             uint64_t e;
             ifs.read((char*)&e, sizeof(e));
-            uint32_t value = e >> 32;
-            // uint32_t value = e & 0xFFFFFFFF;
+            uint32_t value = e & 0xFFFFFFFF;
 
             auto last = (value & AND) >> SHIFT;
             assert(0 <= last && last <= 15);
@@ -68,7 +67,7 @@ void split(int step, int stage) {
             if (count % BLOCK_SIZE == 0) {
                 cout << "spliting: " << count << endl;
             }
-        } while (!ifs.eof());
+        }
         ++iter;
     }
 }

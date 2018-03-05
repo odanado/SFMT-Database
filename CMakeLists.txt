@@ -33,9 +33,17 @@ add_library(rng_utils STATIC
 add_executable(preprocess
     ${PROJECT_SOURCE_DIR}/preprocess.cpp
 )
+add_executable(create_db
+    ${PROJECT_SOURCE_DIR}/create_db.cpp
+)
+add_executable(split_db
+    ${PROJECT_SOURCE_DIR}/split_db.cpp
+)
 add_executable(search
     ${PROJECT_SOURCE_DIR}/search.cpp
 )
 
 target_link_libraries(preprocess utils rng_utils sfmt)
+target_link_libraries(create_db utils rng_utils sfmt -lstdc++fs)
+target_link_libraries(split_db utils rng_utils sfmt -lstdc++fs)
 target_link_libraries(search utils rng_utils sfmt)
