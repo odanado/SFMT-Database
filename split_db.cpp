@@ -22,20 +22,26 @@ void split(int step, int stage) {
     auto oldDir = fs::path("workspace");
     oldDir /= fs::path(std::to_string(step));
     oldDir /= fs::path("stage" + std::to_string(stage - 1));
+    fs::directory_iterator iter(oldDir), end;
+    vector<fs::path> paths;
+    while (iter != end) {
+        paths.push_back(iter->path());
+        ++iter;
+    }
+    sort(paths.begin(), paths.end());
 
     auto newDir = fs::path("workspace");
     newDir /= fs::path(std::to_string(step));
     newDir /= fs::path("stage" + std::to_string(stage));
     fs::create_directories(newDir);
 
-    fs::directory_iterator iter(oldDir), end;
     const uint32_t AND = ((1 << (4 * stage)) - 1);
     const uint32_t SHIFT = 4 * stage - 4;
     cout << std::hex << AND << ", " << SHIFT << endl;
 
-    while (iter != end) {
+    for (auto path : paths) {
         std::ifstream ifs;
-        auto fname = iter->path().string();
+        auto fname = path.string();
         ifs.open(fname, ifstream::in | ifstream::binary);
         cout << "spliting: " << fname << endl;
 
@@ -44,7 +50,7 @@ void split(int step, int stage) {
             return;
         }
 
-        string old = stage == 1 ? "" : iter->path().stem();
+        string old = stage == 1 ? "" : path.stem();
         array<std::ofstream, 16> ofs;
         for (int i = 0; i < 16; i++) {
             auto file = fs::path(toHex(i, 0) + ".bin");
@@ -68,7 +74,6 @@ void split(int step, int stage) {
                 cout << "spliting: " << count << endl;
             }
         }
-        ++iter;
     }
 }
 
@@ -83,5 +88,6 @@ int main() {
 
     split(step, stage);
 
+    cout << "finish: stage = " << stage << endl;
     return 0;
 }
