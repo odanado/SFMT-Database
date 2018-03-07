@@ -23,12 +23,12 @@ void split(int step, int stage) {
     oldDir /= fs::path(std::to_string(step));
     oldDir /= fs::path("stage" + std::to_string(stage - 1));
     fs::directory_iterator iter(oldDir), end;
-    vector<fs::path> paths;
+    std::vector<fs::path> paths;
     while (iter != end) {
         paths.push_back(iter->path());
         ++iter;
     }
-    sort(paths.begin(), paths.end());
+    std::sort(paths.begin(), paths.end());
 
     auto newDir = fs::path("workspace");
     newDir /= fs::path(std::to_string(step));
