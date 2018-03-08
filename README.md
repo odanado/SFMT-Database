@@ -33,3 +33,33 @@ $ ./search
 ``` bash
 $ md5sum -c md5sum-0417.txt
 ```
+
+## For AWS Lambda
+### create DB
+```bash
+$ ./create_db
+step > 477
+```
+
+### split DB
+```bash
+$ ./split_db
+step > 477
+stage > 1
+$ ./split_db
+step > 477
+stage > 2
+$ ./split_db
+step > 477
+stage > 3
+$ ./split_db
+step > 477
+stage > 4
+```
+
+### sort DB
+```bash
+$ ./sort_db
+step > 477
+stage > 4
+```
