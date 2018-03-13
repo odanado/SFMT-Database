@@ -1,8 +1,9 @@
+#include <experimental/filesystem>
 #include <iostream>
 #include <string>
 #include <vector>
-#include <experimental/filesystem>
 
+#include "entry.h"
 #include "io_utils.h"
 #include "rng_utils.h"
 #include "utils.h"
@@ -24,26 +25,34 @@ void create(int step) {
 
     auto file = dir / fs::path("0.bin");
     auto fname = string(file);
-    FILE* fp = fopen(fname.c_str(), "wb");
+    std::ofstream ofs;
+    ofs.open(fname, std::ofstream::out | std::ofstream::binary);
 
-    vector<uint64_t> entries(BLOCK_SIZE);
-    for (uint64_t count = 0; count < MAX; count += BLOCK_SIZE) {
-        if (count % 0x100000 == 0) cout << toHex(count, 8) << endl;
+    vector<Entry> entries(BLOCK_SIZE);
+    for (uint64_t S = 0; S < (1 << 7); S++) {
+        for (uint64_t count = 0; count < MAX; count += BLOCK_SIZE) {
+            if (count % 0x100000 == 0) cout << toHex(count, 8) << endl;
 #pragma omp parallel for
-        for (uint64_t i = 0; i < BLOCK_SIZE; i++) {
-            uint64_t seed = count + i;
-            entries[i] = (seed << 32) | calcNeedle(seed, step);
-        }
-        for (uint32_t i = 0; i < BLOCK_SIZE; i++) {
-            fwrite(&entries[i], sizeof(uint64_t), 1, fp);
+            for (uint64_t i = 0; i < BLOCK_SIZE; i++) {
+                uint32_t seed = count + i;
+                uint32_t value = calcNeedle(seed, step, S);
+                entries[i] = Entry(seed, value, S);
+            }
+            for (uint32_t i = 0; i < BLOCK_SIZE; i++) {
+                entries[i].save(ofs);
+            }
         }
     }
-    fclose(fp);
 }
 
-int main() {
-    cout << "step > ";
-    int step;
-    cin >> step;
+int main(int argc, char const* argv[]) {
+    if (argc < 2) {
+        std::cerr << "error" << std::endl;
+        std::cerr << "usage: ./create_db STEP [fuzzy]" << std::endl;
+        return 1;
+    }
+    int step = std::stoi(argv[1]);
     create(step);
+
+    return 0;
 }
