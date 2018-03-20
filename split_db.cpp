@@ -5,6 +5,7 @@
 #include <iterator>
 #include <string>
 
+#include "entry.h"
 #include "io_utils.h"
 #include "rng_utils.h"
 #include "utils.h"
@@ -62,13 +63,12 @@ void split(int step, int stage) {
 
         while (1) {
             if (ifs.eof()) break;
-            uint64_t e;
-            ifs.read((char*)&e, sizeof(e));
-            uint32_t value = e & 0xFFFFFFFF;
+            auto entry = Entry::load(ifs);
+            auto value = entry.value;
 
             auto last = (value & AND) >> SHIFT;
             assert(0 <= last && last <= 15);
-            ofs[last].write((char*)&e, sizeof(e));
+            entry.save(ofs[last]);
             count++;
             if (count % BLOCK_SIZE == 0) {
                 cout << "spliting: " << count << endl;
@@ -77,14 +77,14 @@ void split(int step, int stage) {
     }
 }
 
-int main() {
-    int step;
-    cout << "step > ";
-    cin >> step;
-
-    int stage;
-    cout << "stage > ";
-    cin >> stage;
+int main(int argc, char const* argv[]) {
+    if (argc < 3) {
+        std::cerr << "error" << std::endl;
+        std::cerr << "usage: ./split_db STEP STAGE" << std::endl;
+        return 1;
+    }
+    int step = std::stoi(argv[1]);
+    int stage = std::stoi(argv[2]);
 
     split(step, stage);
 

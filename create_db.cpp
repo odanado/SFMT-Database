@@ -29,18 +29,16 @@ void create(int step) {
     ofs.open(fname, std::ofstream::out | std::ofstream::binary);
 
     vector<Entry> entries(BLOCK_SIZE);
-    for (uint64_t S = 0; S < (1 << 7); S++) {
-        for (uint64_t count = 0; count < MAX; count += BLOCK_SIZE) {
-            if (count % 0x100000 == 0) cout << toHex(count, 8) << endl;
+    for (uint64_t count = 0; count < MAX; count += BLOCK_SIZE) {
+        if (count % 0x100000 == 0) cout << toHex(count, 8) << endl;
 #pragma omp parallel for
-            for (uint64_t i = 0; i < BLOCK_SIZE; i++) {
-                uint32_t seed = count + i;
-                uint32_t value = calcNeedle(seed, step, S);
-                entries[i] = Entry(seed, value, S);
-            }
-            for (uint32_t i = 0; i < BLOCK_SIZE; i++) {
-                entries[i].save(ofs);
-            }
+        for (uint64_t i = 0; i < BLOCK_SIZE; i++) {
+            uint32_t seed = count + i;
+            uint32_t value = calcNeedle(seed, step);
+            entries[i] = Entry(seed, value);
+        }
+        for (uint32_t i = 0; i < BLOCK_SIZE; i++) {
+            entries[i].save(ofs);
         }
     }
 }
@@ -48,7 +46,7 @@ void create(int step) {
 int main(int argc, char const* argv[]) {
     if (argc < 2) {
         std::cerr << "error" << std::endl;
-        std::cerr << "usage: ./create_db STEP [fuzzy]" << std::endl;
+        std::cerr << "usage: ./create_db STEP" << std::endl;
         return 1;
     }
     int step = std::stoi(argv[1]);

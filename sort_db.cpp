@@ -6,6 +6,8 @@
 #include <string>
 #include <vector>
 
+#include "entry.h"
+
 using std::cin;
 using std::cout;
 using std::endl;
@@ -23,22 +25,18 @@ void one_file(int step, const string &oldFileName, const string &newFileName) {
     std::ofstream ofs;
     ofs.open(newFileName, ofstream::out | ofstream::binary);
 
-    std::vector<uint64_t> entries;
+    std::vector<Entry> entries;
     while (1) {
         if (ifs.eof()) break;
-        uint64_t e;
-        ifs.read((char *)&e, sizeof(e));
-        entries.push_back(e);
+        entries.push_back(Entry::load(ifs));
     }
 
     std::sort(
         entries.begin(), entries.end(),
-        [](const auto &e1, const auto &e2) { return (e1 & 0xFFFFFFFF) < (e2 & 0xFFFFFFFF); });
+        [](const auto &e1, const auto &e2) { return (e1.value) < (e2.value); });
 
     for (auto e : entries) {
-        uint32_t seed = e >> 32;
-        // uint32_t value = e & 0xFFFFFFFF;
-        // cout << std::hex << seed << ", " << value << endl;
+        uint32_t seed = e.seed;
         ofs.write((char *)&seed, sizeof(seed));
     }
 }
@@ -76,14 +74,14 @@ void sort(int step, int stage) {
     }
 }
 
-int main() {
-    int step;
-    cout << "step > ";
-    cin >> step;
-
-    int stage;
-    cout << "stage > ";
-    cin >> stage;
+int main(int argc, char const *argv[]) {
+    if (argc < 3) {
+        std::cerr << "error" << std::endl;
+        std::cerr << "usage: ./sort_db STEP STAGE" << std::endl;
+        return 1;
+    }
+    int step = std::stoi(argv[1]);
+    int stage = std::stoi(argv[2]);
     sort(step, stage);
     cout << "finish: stage = " << stage << endl;
 }

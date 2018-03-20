@@ -27,7 +27,7 @@ using std::vector;
 
 constexpr uint64_t MAX = 0x100000000;
 constexpr uint32_t BLOCK_SIZE = 0x01000000;
-constexpr uint32_t SPLIT_SIZE = 100;
+constexpr uint32_t SPLIT_SIZE = 0xFFFF;
 
 void create(int step) {
     string dirName = "bin/" + std::to_string(step);
